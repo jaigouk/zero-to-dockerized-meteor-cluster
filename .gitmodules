@@ -1,0 +1,6 @@
+[submodule "docker-cheat-sheet"]
+	path = docker-cheat-sheet
+	url = https://github.com/wsargent/docker-cheat-sheet.git
+[submodule "Telescope"]
+	path = Telescope
+	url = https://github.com/jaigouk/Telescope.git
