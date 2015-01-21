@@ -1,0 +1,22 @@
+[Unit]
+Description=Telescope Community Service
+After=docker.service
+Requires=docker.service
+After=etcd.service
+Requires=etcd.service
+
+[Service]
+User=core
+TimeoutStartSec=0
+EnvironmentFile=/etc/environment
+ExecStartPre=/usr/bin/docker pull  jaigouk/telescope
+ExecStartPre=-/usr/bin/docker rm telescope
+ExecStart=/usr/bin/docker run -p 3333:3000 --name telescope jaigouk/telescope
+ExecStop=/usr/bin/docker stop telescope
+ExecStopPost=-/usr/bin/docker rm telescope
+
+Restart=always
+RestartSec=10s
+
+[X-Fleet]
+Conflicts=telescope@*.service

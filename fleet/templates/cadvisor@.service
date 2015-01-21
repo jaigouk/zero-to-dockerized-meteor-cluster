@@ -1,0 +1,17 @@
+[Unit]
+Description=cAdvisor Service
+After=docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=10m
+Restart=always
+ExecStartPre=-/usr/bin/docker kill cadvisor
+ExecStartPre=-/usr/bin/docker rm -f cadvisor
+ExecStartPre=/usr/bin/docker pull google/cadvisor
+ExecStart=/usr/bin/docker run --volume=/:/rootfs:ro --volume=/var/run:/var/run:rw --volume=/sys:/sys:ro --volume=/var/lib/docker/:/var/lib/docker:ro --publish=4194:4194 --name=cadvisor --net=host google/cadvisor:latest --logtostderr --port=4194
+ExecStop=/usr/bin/docker stop -t 2 cadvisor
+
+[X-Fleet]
+Conflicts=cadvisor.*.service
+MachineMetadata=role=kubernetes

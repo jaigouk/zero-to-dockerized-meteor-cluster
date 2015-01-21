@@ -1,0 +1,22 @@
+[Unit]
+Description=fleet-ui
+After=docker.service
+Requires=docker.service
+After=etcd.service
+Requires=etcd.service
+
+[Service]
+User=core
+TimeoutStartSec=0
+EnvironmentFile=/etc/environment
+ExecStartPre=/usr/bin/docker pull  purpleworks/fleet-ui:0.1.3
+ExecStartPre=-/usr/bin/docker rm fleet_ui
+ExecStart=/usr/bin/docker run -p 3030:3000 --name fleet_ui -v /home/core/.ssh/id_rsa:/root/id_rsa purpleworks/fleet-ui:0.1.3
+ExecStop=/usr/bin/docker stop fleet_ui
+ExecStopPost=-/usr/bin/docker rm fleet_ui
+
+Restart=always
+RestartSec=10s
+
+[X-Fleet]
+Conflicts=fleet-ui.*.service
