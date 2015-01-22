@@ -4,7 +4,7 @@ zero-to-dockerized-meteor
 
 [![ScreenShot](https://raw.githubusercontent.com/jaigouk/zero-to-dockerized-meteor-cluster/master/docs/screenshot.png)](http://www.slideshare.net/jaigouk/dockerizing-meteor-6th-meteor-meetup-seoul)
 
-## prerequisites
+## STEP0) Prerequisites
 
 
 * [boot2docker](boot2docker.io)
@@ -16,7 +16,7 @@ brew install etcdctl
 ```
 
 
-### zsh_alias
+* zsh_alias
 
 ```
 
@@ -120,7 +120,7 @@ fleetctl-switch(){
 
 ```
 
-## Dockerize Meeteor App
+## STEP1) Dockerize Meeteor App
 
 add `.dockerignore` and `dockerfile`. and create replica set by following [mongodb-replica-set](https://github.com/inlight-media/docker-mongodb-replica-set)
 
@@ -192,7 +192,7 @@ for bitbucket, I copied deploy key from docker hub and added to submodule's bitb
 
 or you can just `docker push lab80/sm_meteor`
 
-## coreos setup on digitalocean
+## STEP2) coreos setup on digitalocean
 
 create coreos instances with private networking and following user data.
 Using the `coreos-ssh-import-github` field, we can import public SSH keys from a GitHub user to use as authorized keys to a server.
@@ -283,47 +283,8 @@ cd ..
 fleetctl start simple_todos/*
 ```
 
-## Services
 
-Fleet-ui
-```
-setup_fleet_ui(){
-  do_droplets=(xx.xx.xx.xx xx.xx.xx.xx xx.xx.xx.xx)
-  for droplet in ${do_droplets[@]}
-  do
-    ssh -A core@$droplet 'rm -rf ~/.ssh/id_rsa'
-    scp /Users/jaigouk/.docker/certs/key.pem core@$droplet:.ssh/id_rsa
-    ssh -A core@$droplet 'chown -R core:core /home/core/.ssh; chmod 700 /home/core/.ssh; chmod 600 /home/core/.ssh/authorized_keys'
-  done
-  fleetctl destroy fleet-ui@{1..3}.service
-  fleetctl destroy fleet-ui@.service
-  fleetctl start /Users/your_name/path_to_fleet_templates/fleet-ui@{1..3}.service
-}
-
-```
-
-Givent that a following sample redis.service unitfile exists,
-```
-[Unit]
-Description=A Redis Server
-[Service]
-TimeoutStartSec=0
-ExecStartPre=/usr/bin/docker pull redis
-ExecStart=/usr/bin/docker run --rm -p 6379 --name redis
-ExecStop=/usr/bin/docker stop redis
-```
-
-you can run commands like these.
-```
-fleetctl submit redis.service && fleetctl start redis.service
-fleetctl list-units
-fleetctl status redis.service
-fleetctl journal redis.service
-fleetctl stop redis.service
-fleetctl destroy redis.service
-```
-
-## MongoDB replica
+## STEP3) MongoDB replica
 
 Deploy
 ```
@@ -374,6 +335,48 @@ $ SITE_USR_ADMIN_PWD=$(etcdctl get /mongo/replica/siteUserAdmin/pwd 2>/dev/null 
 >     MONGODB="mongodb://siteUserAdmin:"$SITE_USR_ADMIN_PWD"@"$MONGO_NODES"/?replicaSet="$REPLICA_NAME"&connectTimeoutMS=300000";
 >  
 $ etcdctl set /mongo/replica/url $MONGODB   
+```
+
+## STEP4) RUN YOUR METEOR APP
+
+## STEP3) Prepare Fleet Services
+
+Fleet-ui
+```
+setup_fleet_ui(){
+  do_droplets=(xx.xx.xx.xx xx.xx.xx.xx xx.xx.xx.xx)
+  for droplet in ${do_droplets[@]}
+  do
+    ssh -A core@$droplet 'rm -rf ~/.ssh/id_rsa'
+    scp /Users/jaigouk/.docker/certs/key.pem core@$droplet:.ssh/id_rsa
+    ssh -A core@$droplet 'chown -R core:core /home/core/.ssh; chmod 700 /home/core/.ssh; chmod 600 /home/core/.ssh/authorized_keys'
+  done
+  fleetctl destroy fleet-ui@{1..3}.service
+  fleetctl destroy fleet-ui@.service
+  fleetctl start /Users/your_name/path_to_fleet_templates/fleet-ui@{1..3}.service
+}
+
+```
+
+Givent that a following sample redis.service unitfile exists,
+```
+[Unit]
+Description=A Redis Server
+[Service]
+TimeoutStartSec=0
+ExecStartPre=/usr/bin/docker pull redis
+ExecStart=/usr/bin/docker run --rm -p 6379 --name redis
+ExecStop=/usr/bin/docker stop redis
+```
+
+you can run commands like these.
+```
+fleetctl submit redis.service && fleetctl start redis.service
+fleetctl list-units
+fleetctl status redis.service
+fleetctl journal redis.service
+fleetctl stop redis.service
+fleetctl destroy redis.service
 ```
 
 
