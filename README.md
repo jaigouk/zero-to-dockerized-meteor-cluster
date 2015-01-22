@@ -339,9 +339,8 @@ $ etcdctl set /mongo/replica/url $MONGODB
 
 ## STEP4) RUN YOUR METEOR APP
 
-## STEP3) Prepare Fleet Services
+Fleet-ui example
 
-Fleet-ui
 ```
 setup_fleet_ui(){
   do_droplets=(xx.xx.xx.xx xx.xx.xx.xx xx.xx.xx.xx)
