@@ -137,7 +137,7 @@ $ mongo
 to get the ip address of the machine, type
 `boot2docker ip 2> /dev/null` 
 
-and replicaca set name in the image is `dbReplicaSet`
+and replica set name in the image is `dbReplicaSet`
 
 According to [mongodb doc](http://docs.mongodb.org/manual/reference/connection-string/), url format to access replica set is
 
@@ -238,15 +238,10 @@ When you connect to your CoreOS host, pass the -A flag to forward your user agen
 `ssh -A core@xx.xx.xx.xx`
 `ssh -A core@xx.xx.xx.xx`
 
-to use fleetctl you need to add figerprint first.
+to use fleetctl you need to add fingerprint first.
 ```
-$ ssh -A core@104.236.83.246
-$ ssh -A core@104.236.83.250
-$ ssh -A core@104.236.83.147
-
-$ FLEETCTL_TUNNEL=104.236.83.246:22 fleetctl list-machines
-$ FLEETCTL_TUNNEL=104.236.83.250:22 fleetctl list-machines
-$ FLEETCTL_TUNNEL=104.236.83.147:22 fleetctl list-machines
+$ ssh -A core@xx.xx.xx.xx
+$ FLEETCTL_TUNNEL=xx.xx.xx.xx:22 fleetctl list-machines
 ```
 
 and check `fleetctl list-machines` inside of one instance. If you do not see the result of the command as followed, then you should recreate the cluster with a new etcd token.
