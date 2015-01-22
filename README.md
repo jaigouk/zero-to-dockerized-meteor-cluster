@@ -367,6 +367,17 @@ $ etcdctl rm --recursive /mongo/replica/nodes
 
 ```
 
+save mongo url
+```
+$ SITE_USR_ADMIN_PWD=$(etcdctl get /mongo/replica/siteUserAdmin/pwd 2>/dev/null || true ); \
+>     REPLICA_NAME=$(etcdctl get /mongo/replica/name 2>/dev/null || true ); \
+>     MONGO_NODES_WITH_COMMA=$(etcdctl ls /mongo/replica/nodes | xargs -I{} basename {} | xargs -I{} printf "%s," {}:27017); \
+>     MONGO_NODES=${MONGO_NODES_WITH_COMMA::-1}; \
+>     MONGODB="mongodb://siteUserAdmin:"$SITE_USR_ADMIN_PWD"@"$MONGO_NODES"/?replicaSet="$REPLICA_NAME"&connectTimeoutMS=300000";
+>  
+$ etcdctl set /mongo/replica/url $MONGODB   
+```
+
 
 # References
 

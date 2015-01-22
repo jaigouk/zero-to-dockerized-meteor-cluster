@@ -1,39 +1,33 @@
 [Unit]
-Description=Simple-Todos Service
+Description=Simple Todos Service
 After=docker.service
 Requires=docker.service
 After=etcd.service
 Requires=etcd.service
-After=mongo@1.service
-Requires=mongo@1.service
 
 [Service]
 User=core
-TimeoutStartSec=360
-TimeoutStopSec=360
+TimeoutStartSec=0
 
 EnvironmentFile=/etc/environment
 
+ExecStartPre=-/usr/bin/docker kill simple-todos-%i
+ExecStartPre=-/usr/bin/docker rm -f simple-todos-%i
 ExecStartPre=/usr/bin/docker pull  jaigouk/simple-todos
-ExecStartPre=-/usr/bin/docker rm simple-todos-%i
 
-ExecStart=/bin/bash -c 'set -e; \
-    SITE_USR_ADMIN_PWD=$(etcdctl get /mongo/replica/siteUserAdmin/pwd 2>/dev/null || true ); \
-    REPLICA_NAME=$(etcdctl get /mongo/replica/name 2>/dev/null || true ); \
-    MONGO_NODES_WITH_COMMA=$(etcdctl ls /mongo/replica/nodes | xargs -I{} basename {} | xargs -I{} printf "%s," {}:27017); \
-    MONGO_NODES=${MONGO_NODES_WITH_COMMA::-1}; \
-    MONGODB="mongodb://siteUserAdmin:"$SITE_USR_ADMIN_PWD"@"$MONGO_NODES"/?replicaSet="$REPLICA_NAME"&connectTimeoutMS=300000"; \
-    \
-    /usr/bin/docker run --name simple-todos-%i \
+ExecStart=/bin/bash -c '/usr/bin/docker run --name simple-todos-%i \
                         -p 5000:5000 \
                         --memory="128m" \
-                        -e MONGO_URL="$MONGODB" \
+                        -e MONGO_URL="$(etcdctl get /mongo/replica/url)" \
                         -e ROOT_URL="http://127.0.0.1" \
                         jaigouk/simple-todos; \
 '
 
-ExecStop=/usr/bin/docker stop simple-todos-%i
-ExecStopPost=-/usr/bin/docker rm simple-todos-%i
+ExecStop=/usr/bin/docker stop -t 3 simple-todos-%i
 
 Restart=always
 RestartSec=10s
+
+[X-Fleet]
+Conflicts=%p@*.service
+MachineOf=mongo-data@%i.service

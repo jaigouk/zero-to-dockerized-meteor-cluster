@@ -5,7 +5,7 @@ BindsTo=mongo@1.service
 [Service]
 KillMode=none
 
-TimeoutStartSec=360
+TimeoutStartSec=0
 TimeoutStopSec=360
 EnvironmentFile=/etc/environment
 ExecStartPre=/bin/bash -c "docker pull 19hz/mongo-container:latest"
@@ -32,8 +32,8 @@ ExecStart=/bin/bash -c "set -e; \
         echo \"RS_INIT_DONE....\"; \
         /usr/bin/sleep 60; \
         docker run -t  --volumes-from mongo-data1 \
-        19hz/mongo-container:latest mongo $COREOS_PRIVATE_IPV4/admin -u siteRootAdmin -p $SITE_ROOT_PWD \
-        --eval \"var config = rs.config(); if (config.members.length === 1) { config.members[0].host = '$COREOS_PRIVATE_IPV4'; rs.reconfig(config); }\"; \
+            19hz/mongo-container:latest mongo $COREOS_PRIVATE_IPV4/admin -u siteRootAdmin -p $SITE_ROOT_PWD \
+            --eval \"var config = rs.config(); if (config.members.length === 1) { config.members[0].host = '$COREOS_PRIVATE_IPV4'; rs.reconfig(config); }\"; \
         etcdctl set /mongo/replica/rs_config_done finished; \
         echo \"RS_CONFIG_DONE....\"; \
         docker run -t --volumes-from mongo-data1 \
