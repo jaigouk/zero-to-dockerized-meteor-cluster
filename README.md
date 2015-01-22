@@ -196,24 +196,36 @@ Using the `coreos-ssh-import-github` field, we can import public SSH keys from a
 
 `curl -w "\n" https://discovery.etcd.io/new`
 
+Since we are using private docker images, we need to setup coreos cluster with .dockercfg file as mentioned in [this coreos document](https://coreos.com/docs/launching-containers/building/registry-authentication/)
+
 ```
 #cloud-config
 
 coreos:
-  update:
-    reboot-strategy: etcd-lock
   etcd:
-    discovery: https://discovery.etcd.io/xxx
     addr: $private_ipv4:4001
+    discovery: "https://discovery.etcd.io/xxxxxx"
     peer-addr: $private_ipv4:7001
-  fleet:
-    public-ip: $private_ipv4
   units:
     - name: etcd.service
       command: start
     - name: fleet.service
       command: start
- 
+write_files:
+    - path: /home/core/.dockercfg
+      owner: core:core
+      permissions: 0644
+      content: |
+        {
+          "https://index.docker.io/v1/": {
+            "auth": "xXxXxXxXxXx=",
+            "email": "username@example.com"
+          },
+          "https://index.example.com": {
+            "auth": "XxXxXxXxXxX=",
+            "email": "username@example.com"
+          }
+        }
 ```
 
 ```
@@ -226,20 +238,17 @@ When you connect to your CoreOS host, pass the -A flag to forward your user agen
 `ssh -A core@xx.xx.xx.xx`
 `ssh -A core@xx.xx.xx.xx`
 
-to use fleetui 
+to use fleetctl you need to add figerprint first.
 ```
-scp ~/.docker/certs/key.pem core@104.xx.xx.xx.xx:
-scp ~/.docker/certs/key.pem core@104.xx.xx.xx.xx:
-scp ~/.docker/certs/key.pem core@104.xx.xx.xx.xx:
+$ ssh -A core@104.236.83.246
+$ ssh -A core@104.236.83.250
+$ ssh -A core@104.236.83.147
 
-ssh -A core@104.236.83.147
-mv key.pem ~/.ssh/id_rsa
-chown -R core:core ~/.ssh
-chmod 700 ~/.ssh
-chmod 600 ~/.ssh/authorized_keys
-chmod 600 ~/.ssh/id_rsa
-
+$ FLEETCTL_TUNNEL=104.236.83.246:22 fleetctl list-machines
+$ FLEETCTL_TUNNEL=104.236.83.250:22 fleetctl list-machines
+$ FLEETCTL_TUNNEL=104.236.83.147:22 fleetctl list-machines
 ```
+
 and check `fleetctl list-machines` inside of one instance. If you do not see the result of the command as followed, then you should recreate the cluster with a new etcd token.
 
 ```
@@ -267,8 +276,35 @@ switch(){
 now you can just run 
 `fleetctl list-machines` or `etcdctl ls / --recursive`
 
+```
+cd zero-to-dockerized-meteor-cluster/fleet/simple_todos
+ln -s ../templates/simple-todos@.service simple-todos@1.service
+ln -s ../templates/simple-todos@.service simple-todos@2.service
+ln -s ../templates/simple-todos@.service simple-todos@3.service
+cd ..
+fleetctl start simple_todos/*
+```
+
 ## Services
-unitfile
+
+Fleet-ui
+```
+setup_fleet_ui(){
+  do_droplets=(xx.xx.xx.xx xx.xx.xx.xx xx.xx.xx.xx)
+  for droplet in ${do_droplets[@]}
+  do
+    ssh -A core@$droplet 'rm -rf ~/.ssh/id_rsa'
+    scp /Users/jaigouk/.docker/certs/key.pem core@$droplet:.ssh/id_rsa
+    ssh -A core@$droplet 'chown -R core:core /home/core/.ssh; chmod 700 /home/core/.ssh; chmod 600 /home/core/.ssh/authorized_keys'
+  done
+  fleetctl destroy fleet-ui@{1..3}.service
+  fleetctl destroy fleet-ui@.service
+  fleetctl start /Users/your_name/path_to_fleet_templates/fleet-ui@{1..3}.service
+}
+
+```
+
+Givent that a following sample redis.service unitfile exists,
 ```
 [Unit]
 Description=A Redis Server
@@ -279,7 +315,7 @@ ExecStart=/usr/bin/docker run --rm -p 6379 --name redis
 ExecStop=/usr/bin/docker stop redis
 ```
 
-commands
+you can run commands like these.
 ```
 fleetctl submit redis.service && fleetctl start redis.service
 fleetctl list-units
@@ -288,25 +324,6 @@ fleetctl journal redis.service
 fleetctl stop redis.service
 fleetctl destroy redis.service
 ```
-
-
-
-To run fleet-ui
-
-```
-fleetctl submit fleet-ui.1.service && fleetctl start fleet-ui.1.service
-fleetctl submit fleet-ui.2.service && fleetctl start fleet-ui.2.service
-fleetctl submit fleet-ui.3.service && fleetctl start fleet-ui.3.service
-```
-
-to destory them,
-```
-fleetctl destroy fleet-ui.1.service
-fleetctl destroy fleet-ui.2.service
-fleetctl destroy fleet-ui.3.service
-```
-
-
 
 ## MongoDB replica
 
@@ -349,43 +366,6 @@ $ etcdctl rm --recursive /mongo/replica/siteUserAdmin
 $ etcdctl rm --recursive /mongo/replica/nodes
 
 ```
-
-# DigitalOcean
-
-Since we are using private docker images, we need to setup coreos cluster with .dockercfg file as mentioned in [this coreos document](https://coreos.com/docs/launching-containers/building/registry-authentication/)
-
-use quay.io to make robots. docker hub is not ideal to use for automation yet.
-
-```
-#cloud-config
-
-coreos:
-  etcd:
-    addr: $private_ipv4:4001
-    discovery: "https://discovery.etcd.io/xxxxxx"
-    peer-addr: $private_ipv4:7001
-  units:
-    - name: etcd.service
-      command: start
-    - name: fleet.service
-      command: start
-write_files:
-    - path: /home/core/.dockercfg
-      owner: core:core
-      permissions: 0644
-      content: |
-        {
-          "https://index.docker.io/v1/": {
-            "auth": "xXxXxXxXxXx=",
-            "email": "username@example.com"
-          },
-          "https://index.example.com": {
-            "auth": "XxXxXxXxXxX=",
-            "email": "username@example.com"
-          }
-        }
-```
-
 
 
 # References
