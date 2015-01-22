@@ -148,9 +148,18 @@ According to [mongodb doc](http://docs.mongodb.org/manual/reference/connection-s
 
 so our url to access replica set we created is
 
-`mongodb:/xx.xx.xx.xx:27017,xx.xx.xx.xx:27018,xx.xx.xx.xx:27019/?replicaSet=dbReplicaSet&connectTimeoutMS=300000`
+`mongodb://xx.xx.xx.xx:27017,xx.xx.xx.xx:27018,xx.xx.xx.xx:27019/?replicaSet=dbReplicaSet&connectTimeoutMS=300000`
 https://stackoverflow.com/questions/26752033/deploying-meteor-js-app-with-docker-and-phusion-passenger
 
+What's cool about etcd is that you can save key/value in it. For example, you can store mongodb url in etcd and use it like this.
+```
+ExecStart=/bin/bash -c '/usr/bin/docker run --name simple-todos-%i \
+                        -p 5000:5000 \
+                        --memory="128m" \
+                        -e MONGO_URL="$(etcdctl get /mongo/replica/url)" \
+                        -e ROOT_URL="http://127.0.0.1" \
+                        jaigouk/simple-todos; \
+```
 
 Dockerfile
 ```
@@ -284,15 +293,26 @@ fleetctl start simple_todos/*
 ```
 
 
-## STEP3) MongoDB replica
+## STEP3) MongoDB Replica Set
+
+You can save actual data in 
+1) a coreos dir 
+2) another docker container.
+
+If you want to know more about this subject, please visit my [data-only-container repo](https://github.com/jaigouk/data-only-container). For setting up replica set please visit,
+
+1) with a coreos dir : https://github.com/jaigouk/coreos-mongodb
+2) with another data container : https://github.com/19hz/coreos-mongodb-cluster
 
 Deploy
+
 ```
-ssh -A core@xx.xx.xx.xxx 'etcdctl set /mongo/replica/name lab80replica'
+ssh -A core@xx.xx.xx.xxx 'etcdctl set /mongo/replica/name myReplica'
 fleetctl submit mongo-replica-config.service
 fleetctl submit mongo@.service
 fleetctl start mongo@{1..3}.service mongo-replica-config.service
 ```
+
 Connect
 
 You can test connecting to your replica from one of your nodes as follows:
@@ -303,9 +323,6 @@ export FIRST_NODE=$(fleetctl list-machines --no-legend | awk '{print $2}' | head
 alias remote_mongo="docker run -it --rm mongo:2.8 mongo $REPLICA/$FIRST_NODE/admin -u siteRootAdmin -p $SITE_ROOT_PWD"
 ```
 
-`remote_mongo` 
-
-$ Welcome to the MongoDB shell.
 
 Destroy and revert everything
 ```
