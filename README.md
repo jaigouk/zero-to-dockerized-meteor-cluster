@@ -3,9 +3,9 @@ zero-to-dockerized-meteor
 
 ## prerequisites
 
-[DropletManager : digitalcoean droplet manager app](https://github.com/deivuh/DODropletManager-OSX/releases)
-[boot2docker](boot2docker.io)
-[virtualbox](https://www.virtualbox.org/)
+
+* [boot2docker](boot2docker.io)
+* [virtualbox](https://www.virtualbox.org/)
 
 ```
 brew install fleetctl

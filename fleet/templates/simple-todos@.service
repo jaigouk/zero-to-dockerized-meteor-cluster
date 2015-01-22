@@ -9,33 +9,31 @@ Requires=mongo@1.service
 
 [Service]
 User=core
-TimeoutStartSec=0
+TimeoutStartSec=360
+TimeoutStopSec=360
+
 EnvironmentFile=/etc/environment
 
 ExecStartPre=/usr/bin/docker pull  jaigouk/simple-todos
-ExecStartPre=-/usr/bin/docker rm simple-todos@%i
-ExecStartPre=-/bin/bash -c 'set -e; \
-    CHECK_MONGO_REPLICA=$(etcdctl get /mongo/replica/rs_adding_node_done 2>/dev/null || true ); \
-    SITE_USR_ADMIN_PWD=$(etcdctl get /mongo/replica/siteUserAdmin/pwd 2>/dev/null || true ); \
-   MONGO_NODES_WITH_COMMA=$(etcdctl ls /mongo/replica/nodes | xargs -I{} basename {} | xargs -I{} printf "%s," {}:27017); \
-   MONGO_URL=${MONGO_NODES_WITH_COMMA::-1}; \
-   etcdctl set /mongo/replica/url "mongodb://siteUserAdmin:"$SITE_USR_ADMIN_PWD"@"$MONGO_URL"/?replicaSet="$REPLICA_NAME"&connectTimeoutMS=300000"; \
-'
+ExecStartPre=-/usr/bin/docker rm simple-todos-%i
+
 ExecStart=/bin/bash -c 'set -e; \
-    MONGODB=$(etcdctl get /mongo/replica/url 2>/dev/null || true ); \
-    /usr/bin/docker run --name simple-todos@%i -p 5000:5000 \
-                  -e MONGO_URL="$MONGODB" \
-                  -e ROOT_URL="http://127.0.0.1" \
-                  jaigouk/simple-todos; \
+    SITE_USR_ADMIN_PWD=$(etcdctl get /mongo/replica/siteUserAdmin/pwd 2>/dev/null || true ); \
+    REPLICA_NAME=$(etcdctl get /mongo/replica/name 2>/dev/null || true ); \
+    MONGO_NODES_WITH_COMMA=$(etcdctl ls /mongo/replica/nodes | xargs -I{} basename {} | xargs -I{} printf "%s," {}:27017); \
+    MONGO_NODES=${MONGO_NODES_WITH_COMMA::-1}; \
+    MONGODB="mongodb://siteUserAdmin:"$SITE_USR_ADMIN_PWD"@"$MONGO_NODES"/?replicaSet="$REPLICA_NAME"&connectTimeoutMS=300000"; \
+    \
+    /usr/bin/docker run --name simple-todos-%i \
+                        -p 5000:5000 \
+                        --memory="128m" \
+                        -e MONGO_URL="$MONGODB" \
+                        -e ROOT_URL="http://127.0.0.1" \
+                        jaigouk/simple-todos; \
 '
 
-ExecStop=/usr/bin/docker stop simple-todos@%i
-ExecStopPost=-/usr/bin/docker rm simple-todos@%i
+ExecStop=/usr/bin/docker stop simple-todos-%i
+ExecStopPost=-/usr/bin/docker rm simple-todos-%i
 
 Restart=always
 RestartSec=10s
-
-[X-Fleet]
-X-Conflicts=%p@*.service
-Conflicts=%p@*.service
-MachineOf=mongo@%i.service
