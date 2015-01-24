@@ -323,8 +323,27 @@ export FIRST_NODE=$(fleetctl list-machines --no-legend | awk '{print $2}' | head
 alias remote_mongo="docker run -it --rm mongo:2.8 mongo $REPLICA/$FIRST_NODE/admin -u siteRootAdmin -p $SITE_ROOT_PWD"
 ```
 
+Starting mongodb replica set
 
-Destroy and revert everything
+```
+$ cd to_this_repo/fleet/templates
+$ fleetctl start mongo-data@{1..3}.service mongo@{1..3}.service mongo-replica-config.service
+```
+
+save mongo url
+
+```
+$ SITE_USR_ADMIN_PWD=$(etcdctl get /mongo/replica/siteUserAdmin/pwd 2>/dev/null || true ); \
+>     REPLICA_NAME=$(etcdctl get /mongo/replica/name 2>/dev/null || true ); \
+>     MONGO_NODES_WITH_COMMA=$(etcdctl ls /mongo/replica/nodes | xargs -I{} basename {} | xargs -I{} printf "%s," {}:27017); \
+>     MONGO_NODES=${MONGO_NODES_WITH_COMMA::-1}; \
+>     MONGODB="mongodb://siteUserAdmin:"$SITE_USR_ADMIN_PWD"@"$MONGO_NODES"/?replicaSet="$REPLICA_NAME"&connectTimeoutMS=300000";
+>  
+$ etcdctl set /mongo/replica/url $MONGODB   
+```
+
+If you want to destroy and revert everything, then
+
 ```
 # remove all units
 $ fleetctl destroy mongo@{1..3}.service
@@ -343,18 +362,27 @@ $ etcdctl rm --recursive /mongo/replica/nodes
 
 ```
 
-save mongo url
-```
-$ SITE_USR_ADMIN_PWD=$(etcdctl get /mongo/replica/siteUserAdmin/pwd 2>/dev/null || true ); \
->     REPLICA_NAME=$(etcdctl get /mongo/replica/name 2>/dev/null || true ); \
->     MONGO_NODES_WITH_COMMA=$(etcdctl ls /mongo/replica/nodes | xargs -I{} basename {} | xargs -I{} printf "%s," {}:27017); \
->     MONGO_NODES=${MONGO_NODES_WITH_COMMA::-1}; \
->     MONGODB="mongodb://siteUserAdmin:"$SITE_USR_ADMIN_PWD"@"$MONGO_NODES"/?replicaSet="$REPLICA_NAME"&connectTimeoutMS=300000";
->  
-$ etcdctl set /mongo/replica/url $MONGODB   
-```
+
 
 ## STEP4) RUN YOUR METEOR APP
+
+Starting  services
+```
+$ cd to_this_repo/fleet/templates
+$ fleetctl start simple-todos@{1..3}.service
+$ fleetctl start telescope@{1..3}.service
+```
+
+
+you can run commands like these.
+```
+fleetctl submit telescope@{1..3}.service && fleetctl start telescope@{1..3}.service
+fleetctl list-units
+fleetctl status telescope@{1..3}.service
+fleetctl journal -f telescope@{1..3}.service
+fleetctl stop telescope@{1..3}.service
+fleetctl destroy telescope@{1..3}.service
+```
 
 Fleet-ui example
 
@@ -374,26 +402,6 @@ setup_fleet_ui(){
 
 ```
 
-Givent that a following sample redis.service unitfile exists,
-```
-[Unit]
-Description=A Redis Server
-[Service]
-TimeoutStartSec=0
-ExecStartPre=/usr/bin/docker pull redis
-ExecStart=/usr/bin/docker run --rm -p 6379 --name redis
-ExecStop=/usr/bin/docker stop redis
-```
-
-you can run commands like these.
-```
-fleetctl submit redis.service && fleetctl start redis.service
-fleetctl list-units
-fleetctl status redis.service
-fleetctl journal redis.service
-fleetctl stop redis.service
-fleetctl destroy redis.service
-```
 
 
 # References
