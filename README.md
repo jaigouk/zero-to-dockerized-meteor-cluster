@@ -1,6 +1,7 @@
 zero-to-dockerized-meteor
 --------------
 
+Dockerizing Meteor talk slide link at 6th Meteor Meetup Seoul
 
 [![ScreenShot](https://raw.githubusercontent.com/jaigouk/zero-to-dockerized-meteor-cluster/master/docs/screenshot.png)](http://www.slideshare.net/jaigouk/dockerizing-meteor-6th-meteor-meetup-seoul)
 
