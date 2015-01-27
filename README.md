@@ -7,12 +7,14 @@ Dockerizing Meteor talk slide link at 6th Meteor Meetup Seoul
 
 # Goals
 
-Full stack on Digital Ocean (by jaigouk) :
+Full stack on Digital Ocean
 
-- [x] dockerize SM Meteor
+- [x] dockerize Meteor Apps
 - [x] dockerize NGINX
 - [ ] configure DroneCI via fleet unit file (drone_conf.toml)
 - [ ] continuos deployment
+- [ ] Ambassor pattern for nginx load balancer
+- [ ] Ambassor pattern for mongodb replica set
 
 # Deploy steps
 
