@@ -51,7 +51,7 @@ cd ./fleet/coreos-mongodb-cluster
 start_mongo_replica <do-ip-1>
 fleetctl start ./fleet/nginx_lb/nginx_lb.service
 fleetctl start ./fleet/simple_todos/*
-fleetctl start ./fleet/dockerized-jenkins/*.service
+fleetctl start ./fleet/dockerized-drone/*.service
 ```
 
 ### STEP3) DNS Setup (namecheap)
