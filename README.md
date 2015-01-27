@@ -13,8 +13,8 @@ Full stack on Digital Ocean
 - [x] dockerize NGINX
 - [ ] configure DroneCI via fleet unit file (drone_conf.toml)
 - [ ] continuos deployment
-- [ ] Ambassor pattern for nginx load balancer
-- [ ] Ambassor pattern for mongodb replica set
+- [ ] Ambassador pattern for nginx load balancer
+- [ ] Ambassador pattern for mongodb replica set
 
 # Deploy steps
 
