@@ -72,7 +72,7 @@ It should look something like this when you're done entering your data.
 
 # References
 
-["Automatic Docker Deployment With Codeship”](https://xivilization.net/~marek/blog/2014/10/11/automatic-docker-deployment-with-codeship/
+[Automatic Docker Deployment With Codeship](https://xivilization.net/~marek/blog/2014/10/11/automatic-docker-deployment-with-codeship/)
 
 [Codeship Blog](http://blog.codeship.com/?s=docker)
 
