@@ -71,7 +71,6 @@ It should look something like this when you're done entering your data.
 | www | http://your.domain | URL Redirect (301) | n/a | 60 |
 | * | your.ip.address.k.thx | A (Address) | n/a | 60 |
 
-
 # References
 
 [Automatic Docker Deployment With Codeship](https://xivilization.net/~marek/blog/2014/10/11/automatic-docker-deployment-with-codeship/)
