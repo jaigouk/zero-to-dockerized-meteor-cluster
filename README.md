@@ -5,7 +5,7 @@ Dockerizing Meteor talk slide link at 6th Meteor Meetup Seoul
 
 [![ScreenShot](https://raw.githubusercontent.com/jaigouk/zero-to-dockerized-meteor-cluster/master/docs/screenshot.png)](http://www.slideshare.net/jaigouk/dockerizing-meteor-6th-meteor-meetup-seoul)
 
-### Goals
+# Goals
 
 Full stack on Digital Ocean (by jaigouk) :
 
@@ -43,6 +43,7 @@ Options:
 ```
 
 ### STEP2) launch fleet services
+
 ```
 source ./bin/shell_env
 fleetctl-switch <do-ip-1>
@@ -67,3 +68,16 @@ It should look something like this when you're done entering your data.
 | @ | your.ip.address.k.thx | A (Address) | n/a | 60 |
 | www | http://your.domain | URL Redirect (301) | n/a | 60 |
 | * | your.ip.address.k.thx | A (Address) | n/a | 60 |
+
+
+# References
+
+["Automatic Docker Deployment With Codeship”](https://xivilization.net/~marek/blog/2014/10/11/automatic-docker-deployment-with-codeship/
+
+[Codeship Blog](http://blog.codeship.com/?s=docker)
+
+[Giant swarm blog: Getting Started with Microservices using Ruby on Rails and Docker](http://blog.giantswarm.io/getting-started-with-microservices-using-ruby-on-rails-and-docker)
+
+[martinfowler: microservice-testing](http://martinfowler.com/articles/microservice-testing/)
+
+[Rainforest: Docker in Action - Development to Delivery, Part 2](https://blog.rainforestqa.com/2014-12-08-docker-in-action-from-deployment-to-delivery-part-2-continuous-integration/)
