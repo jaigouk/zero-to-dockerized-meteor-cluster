@@ -4,3 +4,15 @@
 [submodule "simple-todos"]
 	path = simple-todos
 	url = https://github.com/jaigouk/simple-todos.git
+[submodule "fleet/nginx_lb"]
+	path = fleet/nginx_lb
+	url = https://github.com/jaigouk/nginx_lb.git
+[submodule "fleet/data-only-container"]
+	path = fleet/data-only-container
+	url = https://github.com/jaigouk/data-only-container.git
+[submodule "fleet/coreos-mongodb-cluster"]
+	path = fleet/coreos-mongodb-cluster
+	url = https://github.com/19hz/coreos-mongodb-cluste.git
+[submodule "fleet/dockerized-drone"]
+	path = fleet/dockerized-drone
+	url = https://github.com/jaigouk/dockerized-drone.git

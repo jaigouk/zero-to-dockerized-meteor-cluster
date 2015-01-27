@@ -1,0 +1,41 @@
+[Unit]
+Description=Simple Todos etcd registration
+
+# Requirements
+After=etcd.service
+Requires=etcd.service
+
+After=simple-todos@%i.service
+Requires=simple-todos@%i.service
+BindsTo=simple-todos@%i.service
+
+[Service]
+TimeoutStartSec=0
+
+# Get CoreOS environmental variables
+EnvironmentFile=/etc/environment
+ExecStartPre=/bin/bash -c '/usr/bin/etcdctl set /services/meteor/${COREOS_PUBLIC_IPV4}/started $(echo $(date -u));'
+
+# Start
+## Test whether service is accessible and then register useful information
+ExecStart=/bin/bash -c '\
+  while true; do \
+    RESULT=$(curl -Is http://${COREOS_PUBLIC_IPV4}:5000 | grep HTTP | cut -d " " -f2); \
+    if [ $RESULT -eq 200 ]; then \
+      etcdctl set /services/meteor/${COREOS_PUBLIC_IPV4} "$COREOS_PUBLIC_IPV4:5000"; \
+    else \
+      etcdctl rm /services/meteor/${COREOS_PUBLIC_IPV4} --recursive; \
+    fi; \
+    sleep 30; \
+  done'
+
+# Stop
+ExecStop=/usr/bin/etcdctl rm /services/meteor/${COREOS_PUBLIC_IPV4} --recursive
+
+Restart=always
+RestartSec=10s
+
+[X-Fleet]
+X-Conflicts=%p@*.service
+Conflicts=%p@*.service
+MachineOf=simple-todos@%i.service

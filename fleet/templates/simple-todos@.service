@@ -1,19 +1,25 @@
 [Unit]
 Description=Simple Todos Service
+
 After=docker.service
 Requires=docker.service
 After=etcd.service
 Requires=etcd.service
 
+After=mongo@%i.service
+Requires=mongo@%i.service
+
 [Service]
 User=core
 TimeoutStartSec=0
 
+# Get CoreOS environmental variables
 EnvironmentFile=/etc/environment
+
 
 ExecStartPre=-/usr/bin/docker kill simple-todos-%i
 ExecStartPre=-/usr/bin/docker rm -f simple-todos-%i
-ExecStartPre=/usr/bin/docker pull  jaigouk/simple-todos
+ExecStartPre=/usr/bin/docker pull jaigouk/simple-todos
 
 ExecStart=/bin/bash -c '/usr/bin/docker run --name simple-todos-%i \
                         -p 5000:5000 \
@@ -23,11 +29,14 @@ ExecStart=/bin/bash -c '/usr/bin/docker run --name simple-todos-%i \
                         jaigouk/simple-todos; \
 '
 
+
+# Stop
 ExecStop=/usr/bin/docker stop -t 3 simple-todos-%i
 
 Restart=always
 RestartSec=10s
 
 [X-Fleet]
+X-Conflicts=%p@*.service
 Conflicts=%p@*.service
 MachineOf=mongo-data@%i.service
