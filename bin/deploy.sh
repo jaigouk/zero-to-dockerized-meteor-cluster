@@ -1,28 +1,18 @@
 #!/bin/bash
 set -e
 
-USAGE="Usage: $0 [-a docker.io auth token] [-m docker.io auth email] [-k ssh key id] [-t digitalocean v2 token] [-o droplet name prefix] [-n number of droplets] [-e etcd token] [-s droplet size]
+USAGE="Usage: $0 [-k ssh key id] [-t digitalocean v2 token] [-o droplet name prefix] [-n number of droplets] [-e etcd token] [-s droplet size]
 Options:
-    -a DOCKER_IO_AUTH     docker.io auth token (see your ~/.dockercfg)
-    -m DOCKER_IO_EMAIL    docker.io auth email (see your ~/.dockercfg)
     -k SSH_KEY_ID         SSH KEY ID on digitalocean. you need digitalocean token to get it.
     -t DO_TOKEN           digitalocean api v2 token that has read/write permission
     -o DROPLET_NAME       name prefix for droplets. core => core-1, core-2, core-3
-    -n NUM_OF_DROPLETS    default 3
+    -n INPUT_NUM          default 3
     -e ETCD_TOKEN         without this option, we will get one by default
     -s DROPLET_SIZE       512mb|1gb|2gb|4gb|8gb|16gb
 "
 
 while [ "$#" -gt 0 ]; do
     case $1 in
-        -a)
-            shift 1
-            DOCKER_IO_AUTH=$1
-            ;;
-        -m)
-            shift 1
-            DOCKER_IO_EMAIL=$1
-            ;;
         -k)
             shift 1
             INPUT_SSH_KEY_ID=$1
@@ -38,7 +28,7 @@ while [ "$#" -gt 0 ]; do
             ;;
         -n)
             shift 1
-            NUM_OF_DROPLETS=$1
+            INPUT_NUM=$1
             ;;
         -e)
             shift 1
@@ -60,25 +50,10 @@ while [ "$#" -gt 0 ]; do
     shift 1
 done
 
-if [ -z "$DOCKER_IO_AUTH" ]; then
-    echo "Please input your docker.io token for Digital Ocean after -a option."
-    exit 1
-else
-  export DOCKERIO_TOKEN=$DOCKER_IO_AUTH
-fi
-
-if [ -z "$DOCKER_IO_EMAIL" ]; then
-    echo "Please input your docker.io token for Digital Ocean after -a option."
-    exit 1
-else
-  export DOCKERIO_EMAIL=$DOCKER_IO_EMAIL
-fi
-
-
-
 if ! echo $DROPLET_SIZE | grep -qE '512mb|1gb|2gb|4gb|8gb|16gb'; then
-    echo 'Channel must be alpha, beta, or stable'
-    exit 1
+    echo 'DROPLET_SIZE must be 512mb|1gb|2gb|4gb|8gb|16gb'
+    echo 'default 2gb'
+    export SIZE='2gb'
 else
   export SIZE=$DROPLET_SIZE
 fi
@@ -110,8 +85,10 @@ else
   echo "$DISCOVERY_URL"
 fi
 
-if [ -z "$NUM_OF_DROPLETS" ]; then
-    NUM_OF_DROPLETS=3
+if [ -z "$INPUT_NUM" ]; then
+    export NUM_OF_DROPLETS=3
+else
+    export NUM_OF_DROPLETS=$INPUT_NUM
 fi
 
 if [ -z "$DROPLET_NAME" ]; then
@@ -120,5 +97,4 @@ if [ -z "$DROPLET_NAME" ]; then
 fi
 
 NAME_PREFIX=$DROPLET_NAME
-
-for i in `seq $NUM_OF_DROPLETS`; do ./create_droplet.sh $NAME_PREFIX-$i; done
+for i in `seq $NUM_OF_DROPLETS`; do /bin/bash ./create_droplet.sh "$NAME_PREFIX-$i"; done
