@@ -5,6 +5,17 @@ Dockerizing Meteor talk slide link at 6th Meteor Meetup Seoul
 
 [![ScreenShot](https://raw.githubusercontent.com/jaigouk/zero-to-dockerized-meteor-cluster/master/docs/screenshot.png)](http://www.slideshare.net/jaigouk/dockerizing-meteor-6th-meteor-meetup-seoul)
 
+# Goals
+
+Full stack on Digital Ocean
+
+- [x] dockerize Meteor Apps
+- [x] dockerize NGINX
+- [x] app registration discovery for nginx load balancer(done by confd)
+- [ ] configure DroneCI via fleet unit file (drone_conf.toml)
+- [ ] continuos deployment
+- [ ] Ambassador pattern for mongodb replica set
+- [ ] dig into https://github.com/meteorhacks/cluster 
 
 # Deploy steps
 
