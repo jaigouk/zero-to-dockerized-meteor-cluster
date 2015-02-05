@@ -43,6 +43,9 @@ write_files:
     permissions: 0600
     owner: root:root
     content: |
+      Port 22
+      ClientAliveInterval 180
+      UseDNS no
       UsePrivilegeSeparation sandbox
       Subsystem sftp internal-sftp
       PermitRootLogin no
@@ -74,12 +77,6 @@ coreos:
       command: start
     - name: fleet.service
       command: start
-    - name: sshd.socket
-      command: restart
-      content: |
-        [Socket]
-        ListenStream=2631
-        Accept=yes
     - name: docker-tcp.socket
       command: start
       enable: yes
