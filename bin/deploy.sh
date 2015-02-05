@@ -65,7 +65,7 @@ if [ -z "$DO_TOKEN" ]; then
     exit 1
 fi
 
-if [ -z "$INPUT_SSH_KEY_ID" ]; then
+if (test -z "$INPUT_SSH_KEY_ID" ); then
     echo -n "========================="
     curl -X GET -H "Authorization: Bearer $DO_TOKEN" "https://api.digitalocean.com/v2/account/keys"
     echo -n "========================="

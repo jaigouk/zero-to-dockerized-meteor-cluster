@@ -47,10 +47,10 @@ setup_fleet_ui(){
     scp /Users/jaigouk/.docker/certs/key.pem core@$droplet:.ssh/id_rsa
     ssh -A core@$droplet 'chown -R core:core /home/core/.ssh; chmod 700 /home/core/.ssh; chmod 600 /home/core/.ssh/authorized_keys'
   done
-  fleetctl destroy fleet-ui@{1..3}.service
-  fleetctl destroy fleet-ui@.service
-  fleetctl submit  /Users/jaigouk/lab80/ondol/fleet/templates/fleet-ui@.service
-  fleetctl start /Users/jaigouk/lab80/ondol/fleet/templates/fleet-ui@{1..3}.service
+  FLEETCTL_TUNNEL=$droplet:22 fleetctl destroy fleet-ui@{1..3}.service
+  FLEETCTL_TUNNEL=$droplet:22 fleetctl destroy fleet-ui@.service
+  FLEETCTL_TUNNEL=$droplet:22 fleetctl submit  /Users/user_name/path_to_templates/fleet-ui@.service
+  FLEETCTL_TUNNEL=$droplet:22 fleetctl start /Users/user_name/path_to_templates/fleet-ui@{1..3}.service
 }
 
 fleetctl-switch(){
@@ -65,20 +65,20 @@ start_mongo_replica(){
   CONTROL_IP=$1
   export FLEETCTL_TUNNEL=$CONTROL_IP:22
   ssh -A core@$CONTROL_IP 'etcdctl set /mongo/replica/name myreplica'
-  fleetctl submit mongo-data@.service  mongo@.service mongo-replica-config.service
-  fleetctl start mongo-data@{1..3}.service
-  fleetctl start mongo@{1..3}.service
-  fleetctl start mongo-replica-config.service
+  FLEETCTL_TUNNEL=$1:22 fleetctl submit mongo-data@.service  mongo@.service mongo-replica-config.service
+  FLEETCTL_TUNNEL=$1:22 fleetctl start mongo-data@{1..3}.service
+  FLEETCTL_TUNNEL=$1:22 fleetctl start mongo@{1..3}.service
+  FLEETCTL_TUNNEL=$1:22 fleetctl start mongo-replica-config.service
 }
 destroy_mongo_replica() {
   CONTROL_IP=$1
   export FLEETCTL_TUNNEL=$CONTROL_IP:22
   alias etcdctl="ssh -A core@$CONTROL_IP 'etcdctl'"
-  fleetctl destroy mongo-data@{1..3}.service
-  fleetctl destroy mongo@{1..3}.service
-  fleetctl destroy mongo-data@.service
-  fleetctl destroy mongo@.service
-  fleetctl destroy mongo-replica-config.service
+  FLEETCTL_TUNNEL=$1:22 fleetctl destroy mongo-data@{1..3}.service
+  FLEETCTL_TUNNEL=$1:22 fleetctl destroy mongo@{1..3}.service
+  FLEETCTL_TUNNEL=$1:22 fleetctl destroy mongo-data@.service
+  FLEETCTL_TUNNEL=$1:22 fleetctl destroy mongo@.service
+  FLEETCTL_TUNNEL=$1:22 fleetctl destroy mongo-replica-config.service
   ssh -A core@$CONTROL_IP 'etcdctl rm /mongo/replica/url'
   ssh -A core@$CONTROL_IP 'etcdctl rm /mongo/replica/siteRootAdmin --recursive'
   ssh -A core@$CONTROL_IP 'etcdctl rm /mongo/replica/siteUserAdmin --recursive'
