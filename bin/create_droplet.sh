@@ -14,9 +14,9 @@ DOCKER_HUB_EMAIL_PART=$(cat ~/.dockercfg| awk -F':' '{print $5}')
 DOCKER_HUB_EMAIL=$(echo $DOCKER_HUB_EMAIL_PART | awk -F'"' '{print $2}')
 
 # echo "=========================="
-echo "check vars"
-echo "DOCKER_HUB_AUTH: $DOCKER_HUB_AUTH"
-echo "DOCKER_HUB_EMAIL: $DOCKER_HUB_EMAIL"
+# echo "check vars"
+# echo "DOCKER_HUB_AUTH: $DOCKER_HUB_AUTH"
+# echo "DOCKER_HUB_EMAIL: $DOCKER_HUB_EMAIL"
 # echo "DO_TOKEN: $DO_TOKEN"
 # echo "DROPLET_NAME: $DROPLET_NAME"
 # echo "SIZE: $SIZE"
@@ -26,8 +26,7 @@ echo "DOCKER_HUB_EMAIL: $DOCKER_HUB_EMAIL"
 
 # example
 # https://github.com/deis/deis/blob/master/contrib/coreos/user-data.example
-          # \"auth\": '"$DOCKER_HUB_AUTH"'",
-          # \"email\": '"$DOCKER_HUB_EMAIL"'"
+
 curl -X POST "https://api.digitalocean.com/v2/droplets" \
      -H "Content-Type: application/json" \
      -H "Authorization: Bearer $DO_TOKEN" \
@@ -107,21 +106,3 @@ coreos:
         [Service]
         Type=oneshot
         ExecStart=/usr/bin/systemctl enable docker-tcp.socket"}'
-
-# write_files:
-#   - path: /etc/ssh/sshd_config
-#     permissions: 0600
-#     owner: root:root
-#     content: |
-#       # Use most defaults for sshd configuration.
-#       UsePrivilegeSeparation sandbox
-#       Subsystem sftp internal-sftp
-#       PermitRootLogin no
-#       AllowUsers core
-#       PasswordAuthentication no
-#       ChallengeResponseAuthentication no
-  # - path: /home/core/.dockercfg
-  #   owner: core:core
-  #   permissions: 0644
-  #   content: |
-  #     {"https://index.docker.io/v1/":{"auth":"amFpZ291azptZXJib25yYWlsczU=","email":"jaigouk@gmail.com"},"quay.io":{"auth":"amFpZ291azplS3M4c3hEZ2lhUDcoJXlqRUUqRw==","email":"ping@jaigouk.kim"}}
