@@ -12,6 +12,7 @@ Full stack on Digital Ocean
 - [x] dockerize Meteor Apps
 - [x] dockerize NGINX
 - [x] app registration discovery for nginx load balancer(done by confd)
+- [ ] use vulcand instead of nginx load balancer
 - [ ] configure DroneCI via fleet unit file (drone_conf.toml)
 - [ ] continuos deployment
 - [ ] Ambassador pattern for mongodb replica set
