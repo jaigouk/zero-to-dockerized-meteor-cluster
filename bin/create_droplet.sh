@@ -14,8 +14,6 @@ echo "DROPLET_NAME: $DROPLET_NAME"
 echo "SIZE: $SIZE"
 echo "SSH_KEY_ID: $SSH_KEY_ID"
 echo "DISCOVERY_URL: $DISCOVERY_URL"
-echo "DOCKERIO_TOKEN: $DOCKERIO_TOKEN"
-echo "DOCKERIO_EMAIL: $DOCKERIO_EMAIL"
 echo "=========================="
 
 DOCKERCFG=$(<~/.dockercfg)
